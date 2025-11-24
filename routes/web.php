@@ -14,5 +14,19 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('layout');
+});
+
+Route::get('/about', function() {
+    return view('main.about');
+});
+
+Route::get('/contact', function() {
+    $array = [
+        'name' => 'Moscow Polytech',
+        'adress' => 'B. Semenovskaya h.38',
+        'email' => '..@mospolytech.ru',
+        'phone' => '8(499)232-2222'
+    ];
+    return view('main.contact', ['contact' => $array]);
 });
