@@ -9,15 +9,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Comment extends Model
 {
     use HasFactory;
-
-    protected $fillable = [
-        'text',
-        'article_id',
-        'users_id'
-    ];
-    
     public function article(): BelongsTo
     {
         return $this->belongsTo(Article::class);
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class);
     }
 }
