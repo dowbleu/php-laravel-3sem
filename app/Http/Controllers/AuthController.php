@@ -40,6 +40,8 @@ class AuthController extends Controller
 
         if(Auth::attempt($credentials, $request->remember)){
             $request->session()->regenerate();
+            $user = Auth::user();
+            $user->createToken('auth-token')->plainTextToken;
             return redirect()->intended('/');
         }
 
@@ -49,9 +51,13 @@ class AuthController extends Controller
     }
 
     public function logout(Request $request){
+        $user = Auth::user();
+        if($user) {
+            $user->tokens()->delete();
+        }
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return  redirect()->route('login');
+        return redirect('/');
     }
 }
