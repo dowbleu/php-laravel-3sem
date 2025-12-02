@@ -1,11 +1,11 @@
 @extends('layout')
 @section('content')
 
-@if (session()->has('message'))
-    <div class="alert alert-success">
+    @if (session()->has('message'))
+        <div class="alert alert-success">
             {{ session('message') }}
-    </div>
-@endif
+        </div>
+    @endif
 
     <div class="card" style="width: 100%;">
         <div class="card-body">
@@ -20,6 +20,46 @@
                         <button type="submit" class="btn btn-warning">Delete</button>
                     </form>
                 </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h4>Comments</h4>
+
+        @if($article->comments->count() > 0)
+            @foreach($article->comments as $comment)
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p class="card-text">{{ $comment->text }}</p>
+                        <small class="text-muted">{{ $comment->created_at->format('Y-m-d H:i') }}</small>
+                        <div class="mt-2">
+                            <a href="/comment/{{ $comment->id }}/edit" class="btn btn-sm btn-primary">Edit</a>
+                            <form action="/comment/{{ $comment->id }}" method="post" class="d-inline">
+                                @METHOD("DELETE")
+                                @CSRF
+                                <button type="submit" class="btn btn-sm btn-warning">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @else
+            <p class="text-muted">No comments yet.</p>
+        @endif
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Add Comment</h5>
+                <form action="/comment" method="post">
+                    @CSRF
+                    <input type="hidden" name="article_id" value="{{ $article->id }}">
+                    <div class="mb-3">
+                        <label for="text" class="form-label">Comment</label>
+                        <textarea class="form-control" id="text" name="text" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" style="background-color: #0d6efd;" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
         </div>
     </div>
 @endsection

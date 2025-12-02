@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,6 +24,8 @@ Route::resource('/article', ArticleController::class);
 Route::get('/auth/signin', [AuthController::class, 'signin']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 
+//Comment
+Route::resource('/comment', CommentController::class);
 
 //Main
 Route::get('/', [MainController::class, 'index']);
