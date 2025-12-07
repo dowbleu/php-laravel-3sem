@@ -12,14 +12,16 @@
             <h5 class="card-title text-center">{{ $article->title }}</h5>
             <h5 class="card-subtitle mb-2 text-body-secondary">{{ $article->date_public }}</h6>
                 <p class="card-text mb-3">{{ $article->text }}</p>
-                <div class="btn-toolbar" role="toolbar">
-                    <a href="/article/{{ $article->id }}/edit" class="btn btn-primary me-3">Edit</a>
-                    <form action="/article/{{ $article->id }}" method="post">
-                        @METHOD("DELETE")
-                        @CSRF
-                        <button type="submit" class="btn btn-warning">Delete</button>
-                    </form>
-                </div>
+                @can('create')
+                    <div class="btn-toolbar" role="toolbar">
+                        <a href="/article/{{ $article->id }}/edit" class="btn btn-primary me-3">Edit</a>
+                        <form action="/article/{{ $article->id }}" method="post">
+                            @METHOD("DELETE")
+                            @CSRF
+                            <button type="submit" class="btn btn-warning">Delete</button>
+                        </form>
+                    </div>
+                @endcan
         </div>
     </div>
 
@@ -31,16 +33,11 @@
                 <div class="card mb-3">
                     <div class="card-body">
                         <p class="card-text">{{ $comment->text }}</p>
-                        <p class="text-muted">Автор: {{ $comment->user->name }}</p>
                         <small class="text-muted">{{ $comment->created_at->format('Y-m-d H:i') }}</small>
-                        <div class="mt-2">
-                            <a href="/comment/{{ $comment->id }}/edit" class="btn btn-sm btn-primary">Edit</a>
-                            <form action="/comment/{{ $comment->id }}" method="post" class="d-inline">
-                                @METHOD("DELETE")
-                                @CSRF
-                                <button type="submit" class="btn btn-sm btn-warning">Delete</button>
-                            </form>
-                        </div>
+                        @can('comment', $comment)
+                            <a href="/comment/edit/{{$comment->id}}" class="btn btn-primary me-3">Edit comment</a>
+                            <a href="/comment/delete/{{$comment->id}}" class="btn btn-primary me-3">Delete comment</a>
+                        @endcan
                     </div>
                 </div>
             @endforeach

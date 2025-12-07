@@ -847,9 +847,11 @@
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/article">Article</a>
                         </li>
+                        @can('create')
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/article/create">Create Article</a>
                         </li>
+                        @endcan
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/about">About</a>
                         </li>
