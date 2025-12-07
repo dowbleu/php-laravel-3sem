@@ -19,10 +19,10 @@ use App\Http\Controllers\CommentController;
 
 //Comments
 Route::controller(CommentController::class)->prefix('comment')->group(function(){
-    Route::post('/', 'store');
-    Route::get('/edit/{comment}', 'edit');
-    Route::post('/update/{comment}', 'update');
-    Route::get('/delete/{comment}', 'delete');
+    Route::post('/', 'store')->middleware('auth:sanctum');
+    Route::get('/edit/{comment}', 'edit')->middleware('auth:sanctum');
+    Route::put('/{comment}', 'update')->middleware('auth:sanctum');
+    Route::get('/delete/{comment}', 'delete')->middleware('auth:sanctum');
 });
 
 //Article

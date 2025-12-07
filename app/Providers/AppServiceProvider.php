@@ -32,9 +32,13 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('comment', function(User $user, Comment $comment){
-            return ($user->id == $comment->user_id) 
-            ? Response::allow()
-            : Response::deny('Your don`t moderator');
+            if ($user->role == "moderator") {
+                return Response::allow();
+            }
+
+            return ($user->id == $comment->users_id) 
+                ? Response::allow()
+                : Response::deny('You can only edit or delete your own comments');
         });
     }
 }

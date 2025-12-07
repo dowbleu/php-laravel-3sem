@@ -2,7 +2,7 @@
 @section('content')
 
     @if (session()->has('message'))
-        <div class="alert alert-success">
+        <div class="alert alert-success" role="alert">
             {{ session('message') }}
         </div>
     @endif
@@ -10,54 +10,62 @@
     <div class="card" style="width: 100%;">
         <div class="card-body">
             <h5 class="card-title text-center">{{ $article->title }}</h5>
-            <h5 class="card-subtitle mb-2 text-body-secondary">{{ $article->date_public }}</h6>
-                <p class="card-text mb-3">{{ $article->text }}</p>
-                @can('create')
-                    <div class="btn-toolbar" role="toolbar">
-                        <a href="/article/{{ $article->id }}/edit" class="btn btn-primary me-3">Edit</a>
-                        <form action="/article/{{ $article->id }}" method="post">
-                            @METHOD("DELETE")
-                            @CSRF
-                            <button type="submit" class="btn btn-warning">Delete</button>
-                        </form>
-                    </div>
-                @endcan
+            <h6 class="card-subtitle mb-2 text-body-secondary">{{ $article->date_public }}</h6>
+            <p class="card-text">{{ $article->text }}</p>
+            @can('create')
+                <div class="btn-toolbar mt-3" role="toolbar">
+                    <a href="/article/{{ $article->id }}/edit" class="btn btn-primary me-3">Edit article</a>
+                    <form action="/article/{{ $article->id }}" method="post">
+                        @METHOD("DELETE")
+                        @CSRF
+                        <button type="submit" class="btn btn-warning me-3">Delete article</button>
+                    </form>
+                </div>
+            @endcan
         </div>
     </div>
 
     <div class="mt-4">
-        <h4>Comments</h4>
+        <h2>New Comment</h2>
+        
+        <ul class="list-group mb-3">
+            @foreach($errors->all() as $error)
+                <li class="list-group-item list-group-item-danger">{{ $error }}</li>
+            @endforeach
+        </ul>
+
+        <form action="/comment" method="POST">
+            @CSRF
+            <div class="mb-3">
+                <label for="text" class="form-label">Enter comment</label>
+                <textarea name="text" id="text" class="form-control"></textarea>
+            </div>
+            <input type="hidden" name="article_id" value="{{ $article->id }}">
+            <button style="background-color: #0d6efd;" type="submit" class="btn btn-primary">Save</button>
+        </form>
+
+        <h4 class="mt-4">Comments</h4>
 
         @if($article->comments->count() > 0)
             @foreach($article->comments as $comment)
-                <div class="card mb-3">
+                <div class="card mb-3" style="width: 38rem;">
                     <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            <strong>Author:</strong> {{ $comment->user->name ?? 'Unknown' }}
+                        </h6>
                         <p class="card-text">{{ $comment->text }}</p>
                         <small class="text-muted">{{ $comment->created_at->format('Y-m-d H:i') }}</small>
-                        @can('comment', $comment)
-                            <a href="/comment/edit/{{$comment->id}}" class="btn btn-primary me-3">Edit comment</a>
-                            <a href="/comment/delete/{{$comment->id}}" class="btn btn-primary me-3">Delete comment</a>
-                        @endcan
+                        <div class="btn-toolbar mt-3" role="toolbar">
+                            @can('comment', $comment)
+                                <a href="/comment/edit/{{ $comment->id }}" class="btn btn-primary me-3">Edit comment</a>
+                                <a href="/comment/delete/{{ $comment->id }}" class="btn btn-primary me-3">Delete comment</a>
+                            @endcan
+                        </div>
                     </div>
                 </div>
             @endforeach
         @else
             <p class="text-muted">No comments yet.</p>
         @endif
-
-        <div class="card mt-4">
-            <div class="card-body">
-                <h5 class="card-title">Add Comment</h5>
-                <form action="/comment" method="post">
-                    @CSRF
-                    <input type="hidden" name="article_id" value="{{ $article->id }}">
-                    <div class="mb-3">
-                        <label for="text" class="form-label">Comment</label>
-                        <textarea class="form-control" id="text" name="text" rows="3" required></textarea>
-                    </div>
-                    <button type="submit" style="background-color: #0d6efd;" class="btn btn-primary">Submit</button>
-                </form>
-            </div>
-        </div>
     </div>
 @endsection
