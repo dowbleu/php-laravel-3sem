@@ -31,6 +31,7 @@
                 <div class="card mb-3">
                     <div class="card-body">
                         <p class="card-text">{{ $comment->text }}</p>
+                        <p class="text-muted">Автор: {{ $comment->user->name }}</p>
                         <small class="text-muted">{{ $comment->created_at->format('Y-m-d H:i') }}</small>
                         <div class="mt-2">
                             <a href="/comment/{{ $comment->id }}/edit" class="btn btn-sm btn-primary">Edit</a>

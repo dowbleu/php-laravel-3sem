@@ -13,7 +13,7 @@ class CommentController extends Controller
      */
     public function index()
     {
-        $comments = Comment::latest()->paginate(10);
+        $comments = Comment::with('user')->latest()->paginate(10);
         return view('comment.comment', ['comments' => $comments]);
     }
 
@@ -38,7 +38,7 @@ class CommentController extends Controller
         $comment = new Comment();
         $comment->text = $request->text;
         $comment->article_id = $request->article_id;
-        $comment->users_id = 1;
+        $comment->users_id = auth()->id();
         $comment->save();
         
         return redirect()->route('article.show', ['article' => $request->article_id])
