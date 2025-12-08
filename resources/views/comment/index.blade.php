@@ -20,17 +20,12 @@
             @foreach($comments as $comment)
                 <tr>
                     <th scope="row">{{$comment->created_at}}</th>
-                    <td>{{App\Models\User::FindOrFail($comment->users_id)->name}}</td>
-                    <td><a
-                            href="/article/{{App\Models\Article::FindOrFail($comment->article_id)->id}}">{{App\Models\Article::FindOrFail($comment->article_id)->title}}</a>
-                    </td>
+                    <td>{{$comment->user->name ?? 'Unknown'}}</td>
+                    <td><a href="/article/{{$comment->article_id}}">{{$comment->article->title}}</a></td>
                     <td>{{$comment->text}}</td>
                     <td>
-                        @if(!$comment->accept)
-                            <a href="/comment/accept/{{$comment->id}}" class="btn btn-primary">Accept</a>
-                        @else
-                            <a href="/comment/reject/{{$comment->id}}" class="btn btn-warning">Reject</a>
-                        @endif
+                        <a href="/comment/accept/{{$comment->id}}" class="btn btn-primary">Accept</a>
+                        <a href="/comment/reject/{{$comment->id}}" class="btn btn-warning">Reject</a>
                     </td>
                 </tr>
             @endforeach

@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Comment extends Model
 {
     use HasFactory;
+    
+    protected $fillable = [
+        'text',
+        'article_id',
+        'users_id',
+        'accept',
+    ];
+
     public function article(){
         return $this->belongsTo(Article::class);
     }

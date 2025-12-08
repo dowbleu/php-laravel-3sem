@@ -46,8 +46,8 @@
 
         <h4 class="mt-4">Comments</h4>
 
-        @if($article->comments->count() > 0)
-            @foreach($article->comments as $comment)
+        @if($comments->count() > 0)
+            @foreach($comments as $comment)
                 <div class="card mb-3" style="width: 38rem;">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted">
@@ -56,9 +56,6 @@
                         <p class="card-text">{{ $comment->text }}</p>
                         <div style="display: flex; justify-content: space-between">
                             <small class="text-muted">{{ $comment->created_at->format('Y-m-d H:i') }}</small>
-                            <small class="text-muted">
-                                {{ $comment->accept ? 'Комментарий прошёл модерацию' : 'Комментарий не прошёл модерацию' }}
-                            </small>
                         </div>
                         <div class="btn-toolbar mt-3" role="toolbar">
                             @can('comment', $comment)

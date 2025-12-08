@@ -14,7 +14,18 @@ class CommentController extends Controller
 {
     public function index()
     {
-        $comments = Comment::latest()->paginate(10);
+        // Проверка прав доступа - только модератор может видеть страницу модерации
+        if (auth()->user()->role !== 'moderator') {
+            abort(403, 'Access denied. Only moderator can moderate comments.');
+        }
+        
+        // Показываем только комментарии, которые не прошли модерацию (accept = false или null)
+        $comments = Comment::where(function($query) {
+                $query->where('accept', false)
+                      ->orWhereNull('accept');
+            })
+            ->latest()
+            ->paginate(10);
         return view('comment.index', ['comments' => $comments]);
     }
     public function store(Request $request)
@@ -28,6 +39,7 @@ class CommentController extends Controller
         $comment->text = $request->text;
         $comment->article_id = $request->article_id;
         $comment->users_id = auth()->id();
+        $comment->accept = false; // Комментарий ожидает модерации
         if ($comment->save())
             Mail::to('laravel-dowbleu@mail.ru')->send(new Commentmail($comment, $article));
         return redirect()->route('article.show', $request->article_id)->with('message', "Comment add succesful and enter for moderation");
@@ -64,15 +76,25 @@ class CommentController extends Controller
 
     public function accept(Comment $comment)
     {
+        // Проверка прав доступа - только модератор может модерировать
+        if (auth()->user()->role !== 'moderator') {
+            abort(403, 'Access denied. Only moderator can moderate comments.');
+        }
+        
         $comment->accept = true;
         $comment->save();
-        return redirect()->route('comment.index');
+        return redirect()->route('comment.index')->with('message', 'Comment accepted');
     }
 
     public function reject(Comment $comment)
     {
+        // Проверка прав доступа - только модератор может модерировать
+        if (auth()->user()->role !== 'moderator') {
+            abort(403, 'Access denied. Only moderator can moderate comments.');
+        }
+        
         $comment->accept = false;
         $comment->save();
-        return redirect()->route('comment.index');
+        return redirect()->route('comment.index')->with('message', 'Comment rejected');
     }
 }
