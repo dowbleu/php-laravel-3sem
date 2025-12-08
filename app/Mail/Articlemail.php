@@ -11,7 +11,7 @@ use Illuminate\Mail\Mailables\Address;
 use App\Models\Article;
 use Illuminate\Queue\SerializesModels;
 
-class ArticleMail extends Mailable
+class Articlemail extends Mailable
 {
     use Queueable, SerializesModels;
 

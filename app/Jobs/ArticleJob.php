@@ -28,6 +28,6 @@ class ArticleJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Mail::to('laravel-dowbleu@mail.ru')->send(new ArticleMail($this->article, $this->author));
+        Mail::to('laravel-dowbleu@mail.ru')->send(new Articlemail($this->article, $this->author));
     }
 }
