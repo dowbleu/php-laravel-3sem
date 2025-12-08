@@ -27,7 +27,7 @@
 
     <div class="mt-4">
         <h2>New Comment</h2>
-        
+
         <ul class="list-group mb-3">
             @foreach($errors->all() as $error)
                 <li class="list-group-item list-group-item-danger">{{ $error }}</li>
@@ -54,7 +54,12 @@
                             <strong>Author:</strong> {{ $comment->user->name ?? 'Unknown' }}
                         </h6>
                         <p class="card-text">{{ $comment->text }}</p>
-                        <small class="text-muted">{{ $comment->created_at->format('Y-m-d H:i') }}</small>
+                        <div style="display: flex; justify-content: space-between">
+                            <small class="text-muted">{{ $comment->created_at->format('Y-m-d H:i') }}</small>
+                            <small class="text-muted">
+                                {{ $comment->accept ? 'Комментарий прошёл модерацию' : 'Комментарий не прошёл модерацию' }}
+                            </small>
+                        </div>
                         <div class="btn-toolbar mt-3" role="toolbar">
                             @can('comment', $comment)
                                 <a href="/comment/edit/{{ $comment->id }}" class="btn btn-primary me-3">Edit comment</a>

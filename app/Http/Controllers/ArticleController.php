@@ -16,7 +16,7 @@ class ArticleController extends Controller
     public function index()
     {
         $articles = Article::latest()->paginate(5);
-        return view('/article/article', ['articles'=>$articles]);
+        return view('/article/article', ['articles' => $articles]);
     }
 
     /**
@@ -45,7 +45,7 @@ class ArticleController extends Controller
         $article->text = $request->text;
         $article->users_id = auth()->id();
         $article->save();
-        return redirect()->route('article.index')->with('message','Create successful');
+        return redirect()->route('article.index')->with('message', 'Create successful');
     }
 
     /**
@@ -53,8 +53,10 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
-        $comments = Comment::where('article_id', $article->id)->get();
-        return view('article.show', ['article'=>$article, 'comments'=>$comments]);
+        $comments = Comment::where('article_id', $article->id)
+            ->where('accept', true)
+            ->get();
+        return view('article.show', ['article' => $article, 'comments' => $comments]);
     }
 
     /**
@@ -63,7 +65,7 @@ class ArticleController extends Controller
     public function edit(Article $article)
     {
         Gate::authorize('restore', $article);
-        return view('article.edit', ['article'=>$article]);
+        return view('article.edit', ['article' => $article]);
     }
 
     /**
@@ -82,7 +84,7 @@ class ArticleController extends Controller
         $article->text = $request->text;
         $article->users_id = 1;
         $article->save();
-        return redirect()->route('article.show', ['article'=>$article->id])->with('message','Update successful');
+        return redirect()->route('article.show', ['article' => $article->id])->with('message', 'Update successful');
     }
 
     /**
@@ -92,6 +94,6 @@ class ArticleController extends Controller
     {
         Gate::authorize('delete', $article);
         $article->delete();
-        return redirect()->route('article.index')->with('message','Delete successful');
+        return redirect()->route('article.index')->with('message', 'Delete successful');
     }
 }

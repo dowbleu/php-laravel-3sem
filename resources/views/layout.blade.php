@@ -848,9 +848,12 @@
                             <a class="nav-link active" aria-current="page" href="/article">Article</a>
                         </li>
                         @can('create')
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/article/create">Create Article</a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="/article/create">Create Article</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="/comment">Comment moderation</a>
+                            </li>
                         @endcan
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/about">About</a>
@@ -873,7 +876,8 @@
                             </ul>
                         </li>
                     </ul>
-                    <div class="d-flex">
+                    <div style="display: flex; align-items: center; gap: 10px;" class="d-flex">
+                        <p style="" class="nav-item">Hello, {{ auth()->user()->name ?? 'Guest' }}</p>
                         @guest
                             <a href="/auth/signin" class="btn btn-outline-success mr-5">SignIn</a>
                             <a href="/auth/login" class="btn btn-outline-success ml-3">SignOut</a>
