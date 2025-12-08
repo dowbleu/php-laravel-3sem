@@ -5,21 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Comment;
 use App\Models\Article;
-use App\Mail\Commentmail;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Mail;
+use App\Jobs\VeryLongJob;
 
 
 class CommentController extends Controller
 {
     public function index()
     {
-        // Проверка прав доступа - только модератор может видеть страницу модерации
         if (auth()->user()->role !== 'moderator') {
             abort(403, 'Access denied. Only moderator can moderate comments.');
         }
         
-        // Показываем только комментарии, которые не прошли модерацию (accept = false или null)
         $comments = Comment::where(function($query) {
                 $query->where('accept', false)
                       ->orWhereNull('accept');
@@ -39,9 +36,9 @@ class CommentController extends Controller
         $comment->text = $request->text;
         $comment->article_id = $request->article_id;
         $comment->users_id = auth()->id();
-        $comment->accept = false; // Комментарий ожидает модерации
+        $comment->accept = false;
         if ($comment->save())
-            Mail::to('laravel-dowbleu@mail.ru')->send(new Commentmail($comment, $article));
+            VeryLongJob::dispatch($article, $comment, auth()->user()->name);
         return redirect()->route('article.show', $request->article_id)->with('message', "Comment add succesful and enter for moderation");
     }
 
@@ -76,7 +73,6 @@ class CommentController extends Controller
 
     public function accept(Comment $comment)
     {
-        // Проверка прав доступа - только модератор может модерировать
         if (auth()->user()->role !== 'moderator') {
             abort(403, 'Access denied. Only moderator can moderate comments.');
         }
@@ -88,7 +84,6 @@ class CommentController extends Controller
 
     public function reject(Comment $comment)
     {
-        // Проверка прав доступа - только модератор может модерировать
         if (auth()->user()->role !== 'moderator') {
             abort(403, 'Access denied. Only moderator can moderate comments.');
         }
