@@ -88,8 +88,7 @@ class CommentController extends Controller
             abort(403, 'Access denied. Only moderator can moderate comments.');
         }
         
-        $comment->accept = false;
-        $comment->save();
+        $comment->delete();
         return redirect()->route('comment.index')->with('message', 'Comment rejected');
     }
 }
