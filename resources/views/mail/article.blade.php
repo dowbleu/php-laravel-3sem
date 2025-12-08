@@ -1,20 +1,20 @@
 @component('mail::message')
-# New Article Created!
+# Новая статья создана!
 
-A new article has been created:
+Добавлена статья:
 
 @component('mail::panel')
-**Title:** {{ $article->title }}
+**Название:** {{ $article->title }}
 
-**Text:** {{ $article->text }}
+**Текст:** {{ $article->text }}
 
-**Publication Date:** {{ $article->date_public }}
+**Дата публикации:** {{ $article->date_public }}
 
-**Author:** {{ $author }}
+**Автор:** {{ $author }}
 @endcomponent
 
 @component('mail::button', ['url' => 'http://127.0.0.1:3000/article'])
-View Articles
+Посмотреть статьи
 @endcomponent
 
 @endcomponent
