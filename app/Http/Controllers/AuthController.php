@@ -13,7 +13,7 @@ class AuthController extends Controller
         return view('auth.signin');
     }
 
-    public function register(Request $request) {
+    public function registr(Request $request) {
         $request->validate([
             'name'=>'required',
             // 'email'=> 'email|required|unique:App\Models\User',

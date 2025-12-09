@@ -7,7 +7,7 @@
         @endforeach
     </ul>
 
-    <form action="/auth/register" method="POST">
+    <form action="/auth/registr" method="POST">
         @CSRF
         <div class="mb-3">
             <label for="Name" class="form-label">Your name</label>
