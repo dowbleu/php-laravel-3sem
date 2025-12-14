@@ -865,21 +865,67 @@
                             <a class="nav-link" href="/contact">Contacts</a>
                         </li>
                         @auth
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    New comments <span>{{auth()->user()->UnreadNotifications->count()-1}}</span>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    @foreach(auth()->user()->unreadNotifications as $notify)
-                                        @if(isset($notify->data['article_id']) && isset($notify->data['article']))
-                                            <li> For article:<a class="dropdown-item"
-                                                    href="{{route('article.show', ['article' => $notify->data['article_id'], 'notify' => $notify->id])}}">{{$notify->data['article']}}</a>
-                                            </li>
-                                        @endif
-                                    @endforeach
-                                </ul>
-                            </li>
+                            @php
+                                // Фильтруем уведомления о комментариях, проверяя существование статьи
+                                $commentNotifications = auth()->user()->unreadNotifications->filter(function ($notify) {
+                                    if ($notify->type !== 'App\Notifications\NewCommentNotify') {
+                                        return false;
+                                    }
+                                    if (!isset($notify->data['article_id'])) {
+                                        return false;
+                                    }
+                                    // Проверяем существование статьи
+                                    return \App\Models\Article::find($notify->data['article_id']) !== null;
+                                });
+
+                                // Фильтруем уведомления о статьях, проверяя существование статьи
+                                $articleNotifications = auth()->user()->unreadNotifications->filter(function ($notify) {
+                                    if ($notify->type !== 'App\Notifications\NewArticleNotify') {
+                                        return false;
+                                    }
+                                    if (!isset($notify->data['article_id'])) {
+                                        return false;
+                                    }
+                                    // Проверяем существование статьи
+                                    return \App\Models\Article::find($notify->data['article_id']) !== null;
+                                });
+                            @endphp
+
+                            @if($commentNotifications->count() > 0)
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        New comments: <span>{{$commentNotifications->count()}}</span>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        @foreach($commentNotifications as $notify)
+                                            @if(isset($notify->data['article_id']) && isset($notify->data['article']))
+                                                <li> For article:<a class="dropdown-item"
+                                                        href="{{route('article.show', ['article' => $notify->data['article_id'], 'notify' => $notify->id])}}">{{$notify->data['article']}}</a>
+                                                </li>
+                                            @endif
+                                        @endforeach
+                                    </ul>
+                                </li>
+                            @endif
+
+                            @if($articleNotifications->count() > 0)
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        New articles: <span>{{$articleNotifications->count()}}</span>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        @foreach($articleNotifications as $notify)
+                                            @if(isset($notify->data['article_id']) && isset($notify->data['article']))
+                                                <li> New article:<a class="dropdown-item"
+                                                        href="{{route('article.show', ['article' => $notify->data['article_id'], 'notify' => $notify->id])}}">{{$notify->data['article']}}</a>
+                                                </li>
+                                            @endif
+                                        @endforeach
+                                    </ul>
+                                </li>
+                            @endif
                         @endauth
                     </ul>
                     <div style="display: flex; align-items: center; gap: 10px;" class="d-flex">

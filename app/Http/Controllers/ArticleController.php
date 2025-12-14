@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Comment;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use App\Events\NewArticleEvent;
+use App\Notifications\NewArticleNotify;
 
 
 class ArticleController extends Controller
@@ -56,6 +59,10 @@ class ArticleController extends Controller
         $article->users_id = auth()->id();
         if ($article->save()) {
             NewArticleEvent::dispatch($article);
+
+            // Отправляем уведомления читателям (всем пользователям, кроме автора статьи)
+            $readers = User::where('id', '!=', auth()->id())->get();
+            Notification::send($readers, new NewArticleNotify($article->title, $article->id));
         }
         return redirect()->route('article.index')->with('message', 'Create successful');
     }
@@ -65,8 +72,12 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
-        if (isset($_GET['notify']))
-            auth()->user()->notifications->where('id', $_GET['notify'])->first()->markAsRead();
+        if (isset($_GET['notify']) && auth()->check()) {
+            $notification = auth()->user()->notifications->where('id', $_GET['notify'])->first();
+            if ($notification) {
+                $notification->markAsRead();
+            }
+        }
         $comments = Cache::rememberForever('comments' . $article->id, function () use ($article) {
             return Comment::where('article_id', $article->id)
                 ->where('accept', true)
