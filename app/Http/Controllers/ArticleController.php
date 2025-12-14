@@ -6,7 +6,7 @@ use App\Models\Article;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use App\Jobs\ArticleJob;
+use App\Events\NewArticleEvent;
 
 
 class ArticleController extends Controller
@@ -45,8 +45,9 @@ class ArticleController extends Controller
         $article->title = request('title');
         $article->text = $request->text;
         $article->users_id = auth()->id();
-        if ($article->save())
-            ArticleJob::dispatch($article, auth()->user()->name);
+        if ($article->save()) {
+            NewArticleEvent::dispatch($article);
+        }
         return redirect()->route('article.index')->with('message', 'Create successful');
     }
 
