@@ -38,19 +38,38 @@ class SendStat extends Command
         // Получаем количество новых комментариев за сегодня
         $commentsCount = Comment::whereDate('created_at', Carbon::today())->count();
 
-        // Получаем всех модераторов
-        $moderators = User::where('role', 'moderator')->get();
+        $this->info("Article views today: {$articleViews}");
+        $this->info("Comments today: {$commentsCount}");
 
-        if ($moderators->isEmpty()) {
-            $this->error('No moderators found!');
+        // Получаем адрес для отправки статистики (из env или используем MAIL_FROM_ADDRESS)
+        $statisticsEmail = env('MAIL_STATISTICS_TO', config('mail.from.address'));
+
+        if (empty($statisticsEmail)) {
+            $this->error('No email address configured for statistics!');
+            $this->warn('Set MAIL_STATISTICS_TO in .env or configure MAIL_FROM_ADDRESS');
             return;
         }
 
-        // Отправляем статистику каждому модератору
-        foreach ($moderators as $moderator) {
-            Mail::to($moderator->email)->send(new StatMail($articleViews, $commentsCount));
-        }
+        $this->info("Sending statistics to: {$statisticsEmail}");
 
-        $this->info('Statistics sent to ' . $moderators->count() . ' moderator(s)');
+        try {
+            Mail::to($statisticsEmail)->send(new StatMail($articleViews, $commentsCount));
+
+            $this->info("✓ Email sent successfully to {$statisticsEmail}");
+
+            Log::info("Statistics email sent to {$statisticsEmail}", [
+                'article_views' => $articleViews,
+                'comments_count' => $commentsCount
+            ]);
+        } catch (\Exception $e) {
+            $this->error("✗ Failed to send email to {$statisticsEmail}: " . $e->getMessage());
+            $this->error("  Error details: " . $e->getFile() . ':' . $e->getLine());
+            Log::error("Failed to send statistics email to {$statisticsEmail}", [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
     }
 }

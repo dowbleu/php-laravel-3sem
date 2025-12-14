@@ -29,7 +29,7 @@ class StatMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address(env("MAIL_FROM_ADDRESS"), 'System'),
+            from: new Address(config('mail.from.address'), config('mail.from.name', 'System')),
             subject: 'Daily Statistics Report',
         );
     }
