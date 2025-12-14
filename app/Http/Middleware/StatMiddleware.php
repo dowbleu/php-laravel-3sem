@@ -18,12 +18,22 @@ class StatMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Извлекаем ID статьи из URL
         preg_match('/\d+/', $request->path(), $matches);
-        $article = Article::findOrFail($matches[0]);
-        Click::create([
-            'article_id' => $article->id,
-            'article_title' => $article->title,
-        ]);
+
+        if (!empty($matches) && isset($matches[0])) {
+            $articleId = $matches[0];
+            $article = Article::find($articleId);
+
+            // Сохраняем просмотр только если статья существует
+            if ($article) {
+                Click::create([
+                    'article_id' => $article->id,
+                    'article_title' => $article->title,
+                ]);
+            }
+        }
+
         return $next($request);
     }
 }

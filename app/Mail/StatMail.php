@@ -18,7 +18,7 @@ class StatMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public $countComment)
+    public function __construct(public int $articleViews, public int $commentsCount)
     {
         //
     }
@@ -29,8 +29,8 @@ class StatMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address(env("MAIL_FROM_ADDRESS"), 'olga'),
-            subject: 'Commentmail',
+            from: new Address(env("MAIL_FROM_ADDRESS"), 'System'),
+            subject: 'Daily Statistics Report',
         );
     }
 
@@ -42,7 +42,8 @@ class StatMail extends Mailable
         return new Content(
             markdown: 'mail.stat',
             with: [
-                'countComment' => $this->countComment
+                'articleViews' => $this->articleViews,
+                'commentsCount' => $this->commentsCount
             ]
         );
     }

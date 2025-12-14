@@ -1,12 +1,14 @@
-<x-mail::message>
-    # Introduction
+@component('mail::message')
+# Daily Statistics Report
 
-    The body of your message.
+Here is the daily statistics for {{ date('Y-m-d') }}:
 
-    <x-mail::button :url="''">
-        Button Text
-    </x-mail::button>
+@component('mail::panel')
+**Article Views Today:** {{ $articleViews }}
 
-    Thanks,<br>
-    {{ config('app.name') }}
-</x-mail::message>
+**New Comments Today:** {{ $commentsCount }}
+@endcomponent
+
+Thanks,<br>
+{{ config('app.name') }}
+@endcomponent

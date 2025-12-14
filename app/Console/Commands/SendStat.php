@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Comment;
 use App\Models\Click;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -24,18 +25,32 @@ class SendStat extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Send daily statistics to moderators';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $article_counts = Click::groupBy('article_id')->get()->map(function ($item) {
-            return ['article_id' => $item->article_id, 'count' => $item->count()];
-        });
-        Log::alert($article_counts);
-        $comments = Comment::whereDate('created_at', Carbon::today())->count();
-        Mail::to('moosbeere_O@mail.ru')->send(new StatMail($comments));
+        // Получаем количество просмотров статей за сегодня
+        $articleViews = Click::whereDate('created_at', Carbon::today())->count();
+
+        // Получаем количество новых комментариев за сегодня
+        $commentsCount = Comment::whereDate('created_at', Carbon::today())->count();
+
+        // Получаем всех модераторов
+        $moderators = User::where('role', 'moderator')->get();
+
+        if ($moderators->isEmpty()) {
+            $this->error('No moderators found!');
+            return;
+        }
+
+        // Отправляем статистику каждому модератору
+        foreach ($moderators as $moderator) {
+            Mail::to($moderator->email)->send(new StatMail($articleViews, $commentsCount));
+        }
+
+        $this->info('Statistics sent to ' . $moderators->count() . ' moderator(s)');
     }
 }
