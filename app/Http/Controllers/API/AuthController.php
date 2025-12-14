@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -9,55 +10,67 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function signIn() {
-        return view('auth.signin');
+    public function signIn()
+    {
+        return response()->json(['message' => 'Sign in form data']);
     }
 
-    public function registr(Request $request) {
+    public function registr(Request $request)
+    {
         $request->validate([
-            'name'=>'required',
+            'name' => 'required',
             // 'email'=> 'email|required|unique:App\Models\User',
-            'email'=> 'email|required|unique:users',
-            'password'=>'required|min:6'
+            'email' => 'email|required|unique:users',
+            'password' => 'required|min:6'
         ]);
         $user = User::create([
-            'name'=>$request->name,
-            'email'=>$request->email,
-            'password'=>Hash::make($request->password),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
-        return redirect()->route('login');
+        return response()->json(['message' => 'Registration successful', 'user' => $user], 201);
     }
 
-    public function login(){
-        return view('auth.login');
+    public function login()
+    {
+        return response()->json(['message' => 'Login form data']);
     }
 
-    public function authenticate(Request $request){
+    public function authenticate(Request $request)
+    {
         $credentials = $request->validate([
-            'email'=> 'email|required',
-            'password'=>'required|min:6'
+            'email' => 'email|required',
+            'password' => 'required|min:6'
         ]);
 
-        if(Auth::attempt($credentials, $request->remember)){
-            $request->session()->regenerate();
-            $user = Auth::user();
-            $user->createToken('auth-token')->plainTextToken;
-            return redirect()->intended('/');
+        // Для API используем только токены, без сессий
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Предоставленные учетные данные не соответствуют нашим записям.',
+                'errors' => ['email' => 'Предоставленные учетные данные не соответствуют нашим записям.']
+            ], 401);
         }
 
-        return back()->withErrors([
-            'email'=>'Предоставленные учетные данные не соответствуют нашим записям.',
-        ])->onlyInput('email');
+        // Создаем токен для API
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login successful',
+            'user' => $user,
+            'token' => $token
+        ]);
     }
 
-    public function logout(Request $request){
-        $user = Auth::user();
-        if($user) {
-            $user->tokens()->delete();
+    public function logout(Request $request)
+    {
+        // Для API используем только токены, без сессий
+        $user = $request->user();
+        if ($user) {
+            // Удаляем текущий токен (токен из заголовка Authorization)
+            $request->user()->currentAccessToken()->delete();
         }
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/');
+        return response()->json(['message' => 'Logout successful']);
     }
 }

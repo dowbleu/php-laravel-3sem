@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Comment;
 use App\Models\User;
@@ -26,7 +27,7 @@ class CommentController extends Controller
         $comments = Cache::rememberForever('comments_' . $page, function () {
             return Comment::latest()->paginate(10);
         });
-        return view('comment.index', ['comments' => $comments]);
+        return response()->json($comments);
     }
     public function store(Request $request)
     {
@@ -47,13 +48,13 @@ class CommentController extends Controller
                 Cache::forget($param->key);
             }
         }
-        return redirect()->route('article.show', $request->article_id)->with('message', "Comment add succesful and enter for moderation");
+        return response()->json(['message' => 'Comment add succesful and enter for moderation', 'comment' => $comment], 201);
     }
 
     public function edit(Comment $comment)
     {
         Gate::authorize('comment', $comment);
-        return view('comment.edit', ['comment' => $comment]);
+        return response()->json(['comment' => $comment]);
     }
 
     public function update(Request $request, Comment $comment)
@@ -69,7 +70,7 @@ class CommentController extends Controller
         $comment->text = $request->text;
         $comment->save();
 
-        return redirect()->route('article.show', $comment->article_id)->with('message', 'Comment updated successfully');
+        return response()->json(['message' => 'Comment updated successfully', 'comment' => $comment]);
     }
 
     public function delete(Comment $comment)
@@ -85,7 +86,7 @@ class CommentController extends Controller
         $articleId = $comment->article_id;
         $comment->delete();
 
-        return redirect()->route('article.show', $articleId)->with('message', 'Comment deleted successfully');
+        return response()->json(['message' => 'Comment deleted successfully']);
     }
 
     public function accept(Comment $comment)
@@ -100,7 +101,7 @@ class CommentController extends Controller
             Notification::send($users, new NewCommentNotify($article->title, $article->id));
             Cache::flush();
         }
-        return redirect()->route('comment.index')->with('message', 'Comment accepted');
+        return response()->json(['message' => 'Comment accepted', 'comment' => $comment]);
     }
 
     public function reject(Comment $comment)
@@ -110,6 +111,6 @@ class CommentController extends Controller
         }
 
         $comment->delete();
-        return redirect()->route('comment.index')->with('message', 'Comment rejected');
+        return response()->json(['message' => 'Comment rejected']);
     }
 }
