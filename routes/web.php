@@ -18,18 +18,19 @@ use App\Http\Controllers\CommentController;
 */
 
 //Comments
-Route::controller(CommentController::class)->prefix('comment')->group(function(){
+Route::controller(CommentController::class)->prefix('comment')->group(function () {
     Route::get('/', 'index')->name('comment.index')->middleware('auth:sanctum');
     Route::post('/', 'store')->middleware('auth:sanctum');
     Route::get('/edit/{comment}', 'edit')->middleware('auth:sanctum');
     Route::put('/{comment}', 'update')->middleware('auth:sanctum');
     Route::get('/delete/{comment}', 'delete')->middleware('auth:sanctum');
-    Route::get('/accept/{comment}', 'accept')->middleware('auth:sanctum');;
-    Route::get('/reject/{comment}', 'reject')->middleware('auth:sanctum');;
+    Route::get('/accept/{comment}', 'accept')->middleware('auth:sanctum');
+    Route::get('/reject/{comment}', 'reject')->middleware('auth:sanctum');
 });
 
 //Article
 Route::resource('/article', ArticleController::class)->middleware('auth:sanctum');
+Route::get('/article/{article}', [ArticleController::class, 'show'])->name('article.show')->middleware('stat');
 
 //Auth
 Route::get('/auth/signin', [AuthController::class, 'signin']);
@@ -42,16 +43,16 @@ Route::get('/auth/logout', [AuthController::class, 'logout']);
 Route::get('/', [MainController::class, 'index']);
 Route::get('/full_image/{img}', [MainController::class, 'show']);
 
-Route::get('/about', function(){
+Route::get('/about', function () {
     return view('main.about');
 });
 
-Route::get('/contact', function(){
+Route::get('/contact', function () {
     $array = [
-        'name'=>'Moscow Polytech',
+        'name' => 'Moscow Polytech',
         'adres' => 'B. Semenovskaya h.38',
         'email' => '..@maspolytech.ru',
         'phone' => '8(499)232-2222'
     ];
-    return view('main.contact', ['contact'=>$array]);
+    return view('main.contact', ['contact' => $array]);
 });
