@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Comment;
+use App\Models\User;
 use App\Models\Article;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 use App\Jobs\VeryLongJob;
+use App\Notifications\NewCommentNotify;
 
 
 class CommentController extends Controller
@@ -16,11 +19,11 @@ class CommentController extends Controller
         if (auth()->user()->role !== 'moderator') {
             abort(403, 'Access denied. Only moderator can moderate comments.');
         }
-        
-        $comments = Comment::where(function($query) {
-                $query->where('accept', false)
-                      ->orWhereNull('accept');
-            })
+
+        $comments = Comment::where(function ($query) {
+            $query->where('accept', false)
+                ->orWhereNull('accept');
+        })
             ->latest()
             ->paginate(10);
         return view('comment.index', ['comments' => $comments]);
@@ -76,9 +79,12 @@ class CommentController extends Controller
         if (auth()->user()->role !== 'moderator') {
             abort(403, 'Access denied. Only moderator can moderate comments.');
         }
-        
+        $article = Article::findOrFail($comment->article_id);
         $comment->accept = true;
-        $comment->save();
+        $users = User::where('id', '!=', $comment->user_id)->get();
+        if ($comment->save()) {
+            Notification::send($users, new NewCommentNotify($article->title, $article->id));
+        }
         return redirect()->route('comment.index')->with('message', 'Comment accepted');
     }
 
@@ -87,7 +93,7 @@ class CommentController extends Controller
         if (auth()->user()->role !== 'moderator') {
             abort(403, 'Access denied. Only moderator can moderate comments.');
         }
-        
+
         $comment->delete();
         return redirect()->route('comment.index')->with('message', 'Comment rejected');
     }

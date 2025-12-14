@@ -10,9 +10,11 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
 
     <!-- Styles -->
     <style>
@@ -862,20 +864,21 @@
                         <li class="nav-item">
                             <a class="nav-link" href="/contact">Contacts</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Dropdown
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Action</a></li>
-                                <li><a class="dropdown-item" href="#">Another action</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                            </ul>
-                        </li>
+                        @auth
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    New comments <span>{{auth()->user()->UnreadNotifications->count()}}</span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    @foreach(auth()->user()->unreadNotifications as $notify)
+                                        <li> For article:<a class="dropdown-item"
+                                                href="{{route('article.show', ['article' => $notify->data['article_id'], 'notify' => $notify->id])}}">{{$notify->data['article']}}</a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </li>
+                        @endauth
                     </ul>
                     <div style="display: flex; align-items: center; gap: 10px;" class="d-flex">
                         <p style="" class="nav-item">Hello, {{ auth()->user()->name ?? 'Guest' }}</p>
