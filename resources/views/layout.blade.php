@@ -848,21 +848,21 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/article">Article</a>
+                            <a class="nav-link @active('article')" aria-current="page" href="/article">Article</a>
                         </li>
                         @can('create')
                             <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="/article/create">Create Article</a>
+                                <a class="nav-link @active('article/create')" aria-current="page" href="/article/create">Create Article</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="/comment">Comment moderation</a>
+                                <a class="nav-link @active('comment')" aria-current="page" href="/comment">Comment moderation</a>
                             </li>
                         @endcan
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/about">About</a>
+                            <a class="nav-link @active('about')" aria-current="page" href="/about">About</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/contact">Contacts</a>
+                            <a class="nav-link @active('contact')" href="/contact">Contacts</a>
                         </li>
                         @auth
                             @php
